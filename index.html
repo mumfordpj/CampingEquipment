@@ -4,21 +4,31 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Camping Checklist</title>
+
+  <!-- PWA bits -->
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="style.css" />
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="apple-touch-icon" href="icon-192.png">
+  <!-- Use your polished icon as touch icon -->
+  <link rel="apple-touch-icon" href="final-icon-1024.png">
+
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 <header>
-  <div class="app">
-    <h1>🏕️ Camping Checklist</h1>
-    <div style="color:#9ca3af">Create a trip, tick things off, reset for next time. Works offline.</div>
+  <div class="app" style="display:flex; align-items:center; gap:10px;">
+    <!-- Top-left logo swapped to your shortcut icon -->
+    <img src="final-icon-192.png" alt="Camping Checklist" style="width:36px; height:36px; border-radius:8px;" />
+    <div>
+      <h1 style="margin:0; font-size:22px;">Camping Checklist</h1>
+      <div style="color:#9ca3af; font-size:13px;">Create a trip, tick things off, reset for next time. Works offline.</div>
+    </div>
   </div>
 </header>
+
 <main class="app">
   <div class="card">
+    <!-- Trip controls -->
     <div class="row">
       <div style="flex:1">
         <label for="tripSelect">Trip</label>
@@ -38,6 +48,7 @@
       </div>
     </div>
 
+    <!-- Add item -->
     <div class="controls">
       <div class="row" style="align-items:flex-end">
         <div style="flex:2">
@@ -52,31 +63,29 @@
           <button id="addItemBtn" class="primary">Add</button>
         </div>
       </div>
+
+      <!-- Filter only (export/import moved to bottom) -->
       <div class="row">
         <div style="flex:1">
           <label for="filterCat">Filter by category</label>
           <input id="filterCat" type="text" placeholder="All" />
         </div>
-        <div>
-          <label>&nbsp;</label>
-          <button id="exportBtn">Export</button>
-        </div>
-        <div>
-          <label for="importFile">Import</label>
-          <input id="importFile" type="file" accept="application/json" />
-        </div>
       </div>
     </div>
 
+    <!-- Progress + Sort -->
     <div class="row">
       <span class="badge" id="progressBadge">0/0 packed</span>
       <div style="flex:1"></div>
       <button id="sortBtn">Sort: Unpacked ↑</button>
     </div>
 
+    <!-- List -->
     <div id="list" class="list"></div>
 
     <hr />
+
+    <!-- Templates -->
     <div class="row">
       <div style="flex:1">
         <label for="templateSelect">Templates</label>
@@ -95,13 +104,28 @@
         <button id="deleteTemplateBtn" class="danger">Delete Template</button>
       </div>
     </div>
+
+    <hr />
+
+    <!-- Backup section moved to bottom -->
+    <div class="row">
+      <div style="flex:1">
+        <label>Backup</label>
+        <div class="row" style="margin:0">
+          <button id="exportBtn">Export</button>
+          <input id="importFile" type="file" accept="application/json" />
+        </div>
+        <div class="cat" style="margin-top:6px">Save or restore your trips & templates.</div>
+      </div>
+    </div>
   </div>
 
   <footer>
     <div>Data is stored locally on your device.</div>
-    <div>Menu > "Add to Home Screen" to install.</div>
+    <div>Menu → “Add to Home Screen” to install.</div>
   </footer>
 </main>
+
 <script src="app.js"></script>
 <script>
   if ('serviceWorker' in navigator) {
