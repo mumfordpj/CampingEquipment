@@ -121,18 +121,50 @@ label { font-size: 12px; color: var(--muted); display:block; margin-bottom:6px;}
 @media (max-width: 560px) {
   .controls {
     grid-template-columns: 1fr;
+    gap: 6px;
   }
 
   .row {
     flex-direction: column;
     align-items: stretch;
+    gap: 6px;
+    margin: 6px 0;
   }
 
   .row > * {
     width: 100%;
   }
 
-  button, input, select {
+  input[type="text"], select, button {
     width: 100%;
+    padding: 8px 10px;
+    font-size: 15px;
+  }
+
+  .card {
+    padding: 12px;
+    border-radius: 10px;
+  }
+
+  h1 {
+    font-size: 20px;
+    margin-bottom: 4px;
+  }
+
+  .item {
+    padding: 8px 6px;
+    gap: 6px;
+  }
+
+  .item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+  }
+
+  footer {
+    font-size: 11px;
+    flex-direction: column;
+    gap: 4px;
+    text-align: center;
   }
 }
