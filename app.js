@@ -293,9 +293,10 @@ deleteTemplateBtn.addEventListener('click', () => {
   save();
 });
 
-sortBtn.addEventListener('click', () => {
-  state.sortMode = state.sortMode === 'unpacked' ? 'alpha' : 'unpacked';
-  save();
+sortBtn.textContent =
+  state.sortMode === 'unpacked' ? 'Sort: Unpacked ↑' :
+  state.sortMode === 'alpha' ? 'Sort: A–Z' :
+  'Sort: Category';
 });
 
 window.addEventListener('storage', (e) => {
