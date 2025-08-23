@@ -10,8 +10,8 @@ const ASSETS = [
   './final-icon-72.png',
   './final-icon-96.png',
   './final-icon-128.png',
-  './final-icon-192.png',
-  './final-icon-512.png',
+  './icon-192.png',
+  './icon-512.png',
   './final-icon-1024.png'
 ];
 
