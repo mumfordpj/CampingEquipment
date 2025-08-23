@@ -1,6 +1,9 @@
-
 // Camping Checklist App
+
+// DOM helpers
 const $ = (sel) => document.querySelector(sel);
+
+// Top controls
 const tripSelect = $('#tripSelect');
 const listEl = $('#list');
 const itemName = $('#itemName');
@@ -10,24 +13,32 @@ const resetChecksBtn = $('#resetChecksBtn');
 const deleteTripBtn = $('#deleteTripBtn');
 const newTripBtn = $('#newTripBtn');
 const filterCat = $('#filterCat');
+
+// Backup (now at the bottom in index.html)
 const exportBtn = $('#exportBtn');
 const importFile = $('#importFile');
+
+// Templates
 const templateSelect = $('#templateSelect');
 const applyTemplateBtn = $('#applyTemplateBtn');
 const saveTemplateBtn = $('#saveTemplateBtn');
 const deleteTemplateBtn = $('#deleteTemplateBtn');
+
+// Sort + progress
 const sortBtn = $('#sortBtn');
 const progressBadge = $('#progressBadge');
 
+// State
 let state = {
   trips: {},           // {tripId: {name, items:[{id,name,cat,done}] }}
   templates: {},       // {templateId: {name, items:[{name,cat}] }}
   activeTripId: null,
-  sortMode: 'unpacked' // 'unpacked' | 'alpha'
+  sortMode: 'unpacked' // 'unpacked' | 'alpha' | 'category'
 };
 
 const LS_KEY = 'camping-checklist-v1';
 
+// Default template
 const DEFAULT_TEMPLATE = {
   name: 'Basic Camping Kit',
   items: [
@@ -57,6 +68,7 @@ const DEFAULT_TEMPLATE = {
   ]
 };
 
+// Utils
 function uid() { return Math.random().toString(36).slice(2,10); }
 
 function save() {
@@ -69,21 +81,28 @@ function load() {
     const raw = localStorage.getItem(LS_KEY);
     if (raw) state = JSON.parse(raw);
   } catch (e) {}
-  // Seed with a first trip and template if empty
+
+  // Seed templates
   if (!state.templates || Object.keys(state.templates).length === 0) {
     const tid = uid();
     state.templates = { [tid]: DEFAULT_TEMPLATE };
   }
+  // Seed a first trip
   if (!state.trips || Object.keys(state.trips).length === 0) {
     const newId = uid();
-    state.trips[newId] = { name: `Trip ${new Date().toLocaleDateString()}`, items: DEFAULT_TEMPLATE.items.map(i => ({id:uid(), name:i.name, cat:i.cat, done:false})) };
+    state.trips[newId] = {
+      name: `Trip ${new Date().toLocaleDateString()}`,
+      items: DEFAULT_TEMPLATE.items.map(i => ({id:uid(), name:i.name, cat:i.cat, done:false}))
+    };
     state.activeTripId = newId;
   }
   if (!state.activeTripId) state.activeTripId = Object.keys(state.trips)[0];
   if (!state.sortMode) state.sortMode = 'unpacked';
+
   render();
 }
 
+// Render
 function render() {
   // Trip select
   tripSelect.innerHTML = '';
@@ -105,35 +124,36 @@ function render() {
   });
 
   // Items
-const trip = state.trips[state.activeTripId];
-if (!trip) return;
+  const trip = state.trips[state.activeTripId];
+  if (!trip) return;
 
-const filter = (filterCat.value || '').trim().toLowerCase();
-let items = trip.items.slice();
+  const filter = (filterCat?.value || '').trim().toLowerCase();
+  let items = trip.items.slice();
 
-if (state.sortMode === 'unpacked') {
-  // Unpacked first, then A–Z
-  items.sort((a, b) => Number(a.done) - Number(b.done) || a.name.localeCompare(b.name));
-} else if (state.sortMode === 'alpha') {
-  // A–Z
-  items.sort((a, b) => a.name.localeCompare(b.name));
-} else if (state.sortMode === 'category') {
-  // Category, then Unpacked first, then A–Z
-  const catA = (a.cat || '').toLowerCase();
-  const catB = (b.cat || '').toLowerCase();
-  items.sort((a, b) =>
-    catA.localeCompare(catB) ||
-    (Number(a.done) - Number(b.done)) ||
-    a.name.localeCompare(b.name)
-  );
-}
+  // ---- Sorting modes ----
+  if (state.sortMode === 'unpacked') {
+    // Unpacked first, then A–Z
+    items.sort((a, b) => Number(a.done) - Number(b.done) || a.name.localeCompare(b.name));
+  } else if (state.sortMode === 'alpha') {
+    // A–Z by name
+    items.sort((a, b) => a.name.localeCompare(b.name));
+  } else if (state.sortMode === 'category') {
+    // Category, then Unpacked first, then A–Z
+    items.sort((a, b) => {
+      const catA = (a.cat || '').toLowerCase();
+      const catB = (b.cat || '').toLowerCase();
+      return catA.localeCompare(catB) ||
+             (Number(a.done) - Number(b.done)) ||
+             a.name.localeCompare(b.name);
+    });
+  }
 
-if (filter) items = items.filter(i => (i.cat || '').toLowerCase().includes(filter));
+  // Filter by category text
+  if (filter) items = items.filter(i => (i.cat || '').toLowerCase().includes(filter));
 
-listEl.innerHTML = '';
-  let packed = 0;
+  // Build list
+  listEl.innerHTML = '';
   items.forEach(item => {
-    if (item.done) packed++;
     const row = document.createElement('div');
     row.className = 'item';
 
@@ -149,7 +169,6 @@ listEl.innerHTML = '';
     const cat = document.createElement('div');
     cat.className = 'cat';
     cat.textContent = item.cat || '—';
-
     name.appendChild(title);
     name.appendChild(cat);
 
@@ -167,12 +186,18 @@ listEl.innerHTML = '';
     listEl.appendChild(row);
   });
 
+  // Progress + sort label
   const total = trip.items.length;
   const doneCount = trip.items.filter(i => i.done).length;
   progressBadge.textContent = `${doneCount}/${total} packed`;
-  sortBtn.textContent = state.sortMode === 'unpacked' ? 'Sort: Unpacked ↑' : 'Sort: A–Z';
+
+  sortBtn.textContent =
+    state.sortMode === 'unpacked' ? 'Sort: Unpacked ↑' :
+    state.sortMode === 'alpha'    ? 'Sort: A–Z' :
+                                    'Sort: Category';
 }
 
+// Event wiring
 tripSelect.addEventListener('change', () => {
   state.activeTripId = tripSelect.value;
   save();
@@ -222,6 +247,7 @@ newTripBtn.addEventListener('click', () => {
 
 filterCat.addEventListener('input', render);
 
+// Export / Import (unchanged; they just moved in HTML)
 exportBtn.addEventListener('click', () => {
   const data = {
     trips: state.trips,
@@ -245,9 +271,12 @@ importFile.addEventListener('change', () => {
       const data = JSON.parse(reader.result);
       if (data.trips) state.trips = data.trips;
       if (data.templates) state.templates = data.templates;
-      // Ensure IDs exist
-      for (const [tid, trip] of Object.entries(state.trips)) {
-        trip.items.forEach(i => { if (!i.id) i.id = uid(); if (typeof i.done !== 'boolean') i.done = false; });
+      // Ensure IDs and booleans exist
+      for (const [, trip] of Object.entries(state.trips)) {
+        trip.items.forEach(i => {
+          if (!i.id) i.id = uid();
+          if (typeof i.done !== 'boolean') i.done = false;
+        });
       }
       if (!state.activeTripId || !state.trips[state.activeTripId]) {
         state.activeTripId = Object.keys(state.trips)[0];
@@ -261,6 +290,7 @@ importFile.addEventListener('change', () => {
   reader.readAsText(file);
 });
 
+// Templates
 applyTemplateBtn.addEventListener('click', () => {
   const tid = templateSelect.value;
   const tpl = state.templates[tid];
@@ -293,14 +323,18 @@ deleteTemplateBtn.addEventListener('click', () => {
   save();
 });
 
-sortBtn.textContent =
-  state.sortMode === 'unpacked' ? 'Sort: Unpacked ↑' :
-  state.sortMode === 'alpha' ? 'Sort: A–Z' :
-  'Sort: Category';
+// Sort: cycle through modes
+const SORT_MODES = ['unpacked', 'alpha', 'category'];
+sortBtn.addEventListener('click', () => {
+  const i = SORT_MODES.indexOf(state.sortMode);
+  state.sortMode = SORT_MODES[(i + 1) % SORT_MODES.length];
+  save();
 });
 
+// Cross-tab sync
 window.addEventListener('storage', (e) => {
   if (e.key === LS_KEY) load();
 });
 
+// Init
 load();
