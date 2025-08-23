@@ -1,5 +1,5 @@
 
-const CACHE_NAME = 'camping-checklist-v1';
+const CACHE_NAME = 'camping-checklist-v2'; // was v1
 const ASSETS = [
   './',
   './index.html',
