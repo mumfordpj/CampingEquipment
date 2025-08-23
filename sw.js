@@ -1,35 +1,36 @@
-
-const CACHE_NAME = 'camping-checklist-v2'; // was v1
+// Service Worker
+const CACHE_NAME = 'camping-checklist-v3';
 const ASSETS = [
   './',
   './index.html',
   './style.css',
   './app.js',
   './manifest.webmanifest',
-  './icon-192.png',
-  './icon-512.png'
+  // icons
+  './final-icon-72.png',
+  './final-icon-96.png',
+  './final-icon-128.png',
+  './final-icon-192.png',
+  './final-icon-512.png',
+  './final-icon-1024.png'
 ];
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
-  );
+  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS)));
   self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then(keys => Promise.all(
-      keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
-    ))
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+    )
   );
   self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {
   event.respondWith(
-    caches.match(event.request).then((resp) => {
-      return resp || fetch(event.request);
-    })
+    caches.match(event.request).then((resp) => resp || fetch(event.request))
   );
 });
