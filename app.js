@@ -105,19 +105,32 @@ function render() {
   });
 
   // Items
-  const trip = state.trips[state.activeTripId];
-  if (!trip) return;
+const trip = state.trips[state.activeTripId];
+if (!trip) return;
 
-  const filter = (filterCat.value || '').trim().toLowerCase();
-  let items = trip.items.slice();
-  if (state.sortMode === 'unpacked') {
-    items.sort((a,b) => Number(a.done) - Number(b.done) || a.name.localeCompare(b.name));
-  } else {
-    items.sort((a,b) => a.name.localeCompare(b.name));
-  }
-  if (filter) items = items.filter(i => (i.cat||'').toLowerCase().includes(filter));
+const filter = (filterCat.value || '').trim().toLowerCase();
+let items = trip.items.slice();
 
-  listEl.innerHTML = '';
+if (state.sortMode === 'unpacked') {
+  // Unpacked first, then A–Z
+  items.sort((a, b) => Number(a.done) - Number(b.done) || a.name.localeCompare(b.name));
+} else if (state.sortMode === 'alpha') {
+  // A–Z
+  items.sort((a, b) => a.name.localeCompare(b.name));
+} else if (state.sortMode === 'category') {
+  // Category, then Unpacked first, then A–Z
+  const catA = (a.cat || '').toLowerCase();
+  const catB = (b.cat || '').toLowerCase();
+  items.sort((a, b) =>
+    catA.localeCompare(catB) ||
+    (Number(a.done) - Number(b.done)) ||
+    a.name.localeCompare(b.name)
+  );
+}
+
+if (filter) items = items.filter(i => (i.cat || '').toLowerCase().includes(filter));
+
+listEl.innerHTML = '';
   let packed = 0;
   items.forEach(item => {
     if (item.done) packed++;
