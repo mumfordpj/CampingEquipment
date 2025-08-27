@@ -1,5 +1,5 @@
 // Service Worker
-const CACHE_NAME = 'camping-checklist-v4';
+const CACHE_NAME = 'camping-checklist-v5';
 const ASSETS = [
   './',
   './index.html',
